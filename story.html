@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مسابقات جوري</title>
+<meta name="description" content="قصص الأنبياء بالفيديو ومسابقات صفّية للصف السادس">
+<meta property="og:title" content="مسابقات جوري">
+<meta property="og:site_name" content="مسابقات جوري">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <a class="brand" href="index.html">
+      <span class="mark">ج</span>
+      <span><b>مسابقات جوري</b><small>قصص الأنبياء · الصف السادس</small></span>
+    </a>
+    <a class="pill" href="index.html">🏠 كل القصص</a>
+  </header>
+
+  <main id="story">
+    <p class="empty">جارٍ التحميل…</p>
+  </main>
+</div>
+
+<script src="data/index.js"></script>
+<script>
+const id = (new URLSearchParams(location.search).get('p') || '').toLowerCase().replace(/[^a-z]/g, '');
+loadProphets(list => {
+  const box = document.getElementById('story');
+  const i = list.findIndex(p => p.id === id);
+  if (i < 0) { box.innerHTML = '<p class="empty">لم نجد هذه القصة. <a href="index.html">ارجعوا إلى كل القصص</a></p>'; return; }
+  const p = list[i], prev = list[i - 1], next = list[i + 1];
+  const qCount = p.cats.reduce((n, c) => n + c.qs.length, 0);
+  document.title = 'مسابقات جوري – ' + p.name;
+  box.innerHTML = `
+    <div class="story-head">
+      <span class="ic">${p.ic}</span>
+      <div><h1>${p.title}</h1><p>${p.blurb}</p></div>
+    </div>
+    <div class="player" id="player">
+      <button class="poster cover" id="poster" style="--hue:200" aria-label="تشغيل الفيديو">
+        <span class="cover-ic">${p.ic}</span>
+        <span class="cover-name">${p.name} عليه السلام</span>
+        <span class="play">▶</span>
+        <small>اضغطوا لتشغيل الفيديو</small>
+      </button>
+    </div>
+    <div class="meta">
+      <span>الفيديو من قناة ${p.video.channel} · <span dir="ltr">${p.video.duration}</span></span>
+      <a href="https://www.youtube.com/watch?v=${p.video.id}" target="_blank" rel="noopener">فتح على يوتيوب ↗</a>
+    </div>
+    <div class="cta">
+      <a class="big-btn" href="quiz.html?p=${p.id}">🎯 ابدأ المسابقة</a>
+      <span class="hint">${qCount} سؤالاً في كل مسابقة · ٤ فصول من القصة</span>
+    </div>
+    <nav class="pager">
+      ${prev ? `<a class="pill" href="story.html?p=${prev.id}">→ ${prev.ic} ${prev.name}</a>` : '<span></span>'}
+      ${next ? `<a class="pill" href="story.html?p=${next.id}">${next.ic} ${next.name} ←</a>` : '<span></span>'}
+    </nav>`;
+  // The YouTube player (and its thumbnail) only loads when the teacher presses play.
+  document.getElementById('poster').onclick = () => {
+    document.getElementById('player').innerHTML =
+      `<iframe src="https://www.youtube-nocookie.com/embed/${p.video.id}?rel=0&hl=ar&autoplay=1" title="${p.video.title}"
+        allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  };
+});
+</script>
+</body>
+</html>
